@@ -1,0 +1,68 @@
+{% extends 'index.html' %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h1 class="text-center">修改密码</h1>
+                <div class="formgroup">
+                    <label for="oldpsd">旧密码</label>
+                    <input type="text" name="oldpsd" id="oldpsd" class="form-control">
+                </div>
+                <div class="formgroup">
+                    <label for="newpsd">新密码</label>
+                    <input type="password" name="newpsd" id="newpsd" class="form-control">
+                </div>
+                <div class="formgroup">
+                    <label for="sedpsd">确认密码</label>
+                    <input type="password" name="sedpsd" id="sedpsd" class="form-control">
+                </div>
+
+                <br>
+                <span style="color: red;" id="error_msg"></span>
+                <input type="button" id="submit_btn" class="btn btn-success form-control" value="提交修改">
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        $("#code_img").click(function () {
+            let img_src = $(this).attr('src');
+            $(this).attr('src', img_src += "?");
+        })
+    </script>
+
+    <script>
+        $('#submit_btn').click(function () {
+            $.ajax({
+                url:"{% url 'changepsd' %}",
+                type:"post",
+                data:{
+                    "oldpsd":$('#oldpsd').val(),
+                    "newpsd":$('#newpsd').val(),
+                    "sedpsd":$('#sedpsd').val(),
+                    "csrfmiddlewaretoken":"{{ csrf_token }}",
+                },
+                success:function (args) {
+                    if(args.code == 1000){
+                        window.location.href = args.url
+                    }else
+                    {
+                        $("#error_msg").text(args.msg)
+                    }
+                }
+            })
+        })
+    </script>
+
+
+    <script>
+
+    </script>
+{% endblock %}
+

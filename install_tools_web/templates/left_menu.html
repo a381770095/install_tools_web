@@ -1,0 +1,32 @@
+<div class="panel panel-info">
+    <div class="panel-heading"><h3>文章分类</h3></div>
+    <div class="panel-body">
+        {% for catgory in catgory_ls %}
+            <p>
+                <a href="/app/{{ username }}/category/{{ catgory.pk }}">{{ catgory.name }}({{ catgory.count_catgory|default:0 }})</a>
+            </p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading"><h3>文章标签</h3></div>
+    <div class="panel-body">
+        {% for tag in tag_ls %}
+            <p>
+                <a href="/app/{{ username }}/tag/{{ tag.pk }}">{{ tag.name }}({{ tag.count_tag|default:0 }})</a>
+            </p>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading"><h3>日期归档</h3></div>
+    <div class="panel-body">
+        {% for date in date_ls %}
+            <p>
+                <a href="/app/{{ username }}/archive/{{ date.month|date:'Y-m' }}">{{ date.month|date:"Y-m" }}({{ date.conut_article|default:0 }})</a>
+            </p>
+        {% endfor %}
+    </div>
+</div>

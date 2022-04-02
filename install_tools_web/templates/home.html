@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            LINUX安装软件系统
+        {% endblock %}
+    </title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+</head>
+<body>
+{% block content %}
+    <ul class="nav nav-tabs">
+        <li class="pull-right">
+            {% load static %}
+            {% if request.user.is_authenticated %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="40"
+                     height="40">
+            {% else %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="36"
+                     height="36">
+            {% endif %}
+        </li>
+
+        {% if request.user.is_authenticated %}
+            <!-- Single button -->
+            <li class="pull-right">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        更多操作
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" data-toggle="modal"
+                               data-target="#myModal">修改密码</a></li>
+                        <li><a href="#">更换头像</a></li>
+                        <li><a href="#">后台管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'logout' %}">退出登入</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="pull-right"><a href="">{{ request.user.username }}</a></li>
+
+        {% else %}
+            <li class="pull-right" f>
+                <a href="{% url 'login' %}" class="">登入</a>
+            </li>
+            <li class="pull-right">
+                <a href="{% url 'register' %}" class="">注册</a>
+            </li>
+        {% endif %}
+    </ul>
+
+    <div class="container-fluid">
+        <div class="jumbotron">
+            <h1>LINUX安装软件系统</h1>
+            <p>这是一个简易系统，可以同时登入多台linux系统安装软件服务，还可以自定义安装shell脚本安装，</p>
+            <p>现在就体验一下吧</p>
+            <p><a class="btn btn-primary btn-lg" href="{% url 'login' %}" role="button">登入</a></p>
+        </div>
+    </div>
+
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-md-8 col-md-offset-2">
+                                <div class="formgroup">
+                                    <label for="oldpsd">旧密码</label>
+                                    <input type="password" name="oldpsd" id="oldpsd" class="form-control">
+                                </div>
+                                <div class="formgroup">
+                                    <label for="newpsd">新密码</label>
+                                    <input type="password" name="newpsd" id="newpsd" class="form-control">
+                                </div>
+
+                                <div class="formgroup">
+                                    <label for="sedpsd">确认密码</label>
+                                    <input type="password" name="sedpsd" id="sedpsd" class="form-control">
+                                </div>
+
+                                <br>
+                                <span style="color: red;" id="error_msg"></span>
+                                {#                <input type="button" id="submit_btn" class="btn btn-success form-control" value="提交修改">#}
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="submit_btn">提交修改</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+</body>
+
+
+<script>
+    $('#submit_btn').click(function () {
+        $.ajax({
+            url: "{% url 'changepsd' %}",
+            type: "post",
+            data: {
+                "oldpsd": $('#oldpsd').val(),
+                "newpsd": $('#newpsd').val(),
+                "sedpsd": $('#sedpsd').val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+            },
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = '/app/login/'
+                } else {
+                    $("#error_msg").text(args.msg)
+                }
+            }
+        })
+    })
+</script>
+
+</html>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            安装列表
+        {% endblock %}
+    </title>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+</head>
+<body >
+{% block content %}
+    <ul class="nav nav-tabs">
+        <li>
+            <h4>
+                LINUX软件安装系统
+            </h4>
+        </li>
+        <li class="pull-right">
+            {% load static %}
+            {% if request.user.is_authenticated %}
+                <img src="/media/avatar/me.jpg" id="avatar_img" class="img-circle"
+                     width="40"
+                     height="40">
+            {% else %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="36"
+                     height="36">
+            {% endif %}
+        </li>
+
+        {% if request.user.is_authenticated %}
+            <!-- Single button -->
+            <li class="pull-right">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        更多操作
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" data-toggle="modal"
+                               data-target="#myModal">修改密码</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'logout' %}">退出登入</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="pull-right"><a href="">{{ request.user.username }}</a></li>
+
+        {% else %}
+            <li class="pull-right" f>
+                <a href="{% url 'login' %}" class="">登入</a>
+            </li>
+            <li class="pull-right">
+                <a href="{% url 'register' %}" class="">注册</a>
+            </li>
+        {% endif %}
+    </ul>
+
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3>主机列表</h3></div>
+                <div class="panel-body">
+
+                    <table class="table">
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a class="btn btn-default" role="button" data-toggle="modal"
+                                   data-target="#addhost">+添加主机</a>
+                            </td>
+                            <td></td>
+                        </tr>
+                        {% for host in host_ls %}
+                            <tr>
+                                <td><input type="checkbox" pk={{ host.pk }} name="checkedres"
+                                           value={{ host.host }}/>
+                                </td>
+                                <td>
+                                    {{ host.host }}
+                                </td>
+                                <td>
+                                    <a class="btn" pk={{ host.pk }} name="delhost">删除</a>
+                                </td>
+                            </tr>
+                            {#                        <p><input type="checkbox" pk={{ host.pk }} name="checkedres"#}
+                            {#                                  value={{ host.host }}/>{{ host.host }} <a#}
+                            {#                                class="btn" pk={{ host.pk }} name="delhost">删除</a></p>#}
+                        {% endfor %}
+                        <tr>
+                            <td>
+                                <p name="checkall"><input id="checkall" name="" type="checkbox" value="全选"/>全选</p>
+
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+            </div>
+
+
+        </div>
+
+
+        <div class="col-md-3">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3>服务列表</h3></div>
+                <div class="panel-body">
+
+                    <table class="table">
+
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a class="btn btn-default" role="button" data-toggle="modal"
+                                   data-target="#addshell">+添加shell脚本</a>
+                            </td>
+                            <td></td>
+                        </tr>
+
+                        {% for tool in tool_ls %}
+                            <tr>
+                                <td>
+                                    <input type="checkbox" name="checkedshell" pk={{ tool.pk }} value=""/>
+                                </td>
+                                <td>
+                                    {{ tool.name }}
+                                </td>
+                                <td>
+                                    <a class="btn" pk={{ tool.pk }} name="delshell">删除</a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                        <tr>
+                            <td><p name="selectAll"><input id="selectAll" name="" type="checkbox" value="全选"
+                                                           onclick="selectAll()"/>全选
+                            </p>
+                            </td>
+                        </tr>
+
+                    </table>
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="col-md-2">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3>执行安装</h3></div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <td>
+                                <a class="btn btn-default" id="runinstall">开始安装</a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3>安装结果</h3></div>
+                <div class="panel-body">
+                    <table id="result" class="table">
+                        <tr>
+                            <td>运行结果</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="panel panel-info">
+                <div class="panel-heading"><h3>上传文件</h3></div>
+                <div class="panel-body">
+                    <table class="table">
+                        <tr>
+                            <td></td>
+                            <td>
+                                <a class="btn btn-default" role="button" data-toggle="modal"
+                                   data-target="#upfile">选择文件</a>
+                            </td>
+                            <td></td>
+                        </tr>
+                    </table>
+
+
+                </div>
+            </div>
+
+
+        </div>
+
+
+    </div>
+
+{% endblock %}
+
+
+<!-- Modal 修改密码-->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="formgroup">
+                                <label for="oldpsd">旧密码</label>
+                                <input type="password" name="oldpsd" id="oldpsd" class="form-control">
+                            </div>
+                            <div class="formgroup">
+                                <label for="newpsd">新密码</label>
+                                <input type="password" name="newpsd" id="newpsd" class="form-control">
+                            </div>
+
+                            <div class="formgroup">
+                                <label for="sedpsd">确认密码</label>
+                                <input type="password" name="sedpsd" id="sedpsd" class="form-control">
+                            </div>
+
+                            <br>
+                            <span style="color: red;" id="error_msg"></span>
+                            {#                <input type="button" id="submit_btn" class="btn btn-success form-control" value="提交修改">#}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submit_btn">提交修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal 添加主机 -->
+<div class="modal fade" id="addhost" tabindex="-1" role="dialog" aria-labelledby="addhostLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addhostLabel">添加主机</h4>
+            </div>
+            <div class="modal-body">
+                {#                书写内容部分#}
+                <form action="" id="addhostform" method="post">
+                    {% csrf_token %}
+                    {% for ipt in host_obj %}
+                        <div class="form-group">
+                            <label for="{{ form.auto_id }}">{{ ipt.label }}</label>
+                            {{ ipt }}<span style="color:red">{{ ipt.errors.0 }}</span>
+                        </div>
+                    {% endfor %}
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addhost_btn">确认添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal:上传文件 -->
+<div class="modal fade" id="upfile" tabindex="-1" role="dialog" aria-labelledby="addshellLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="upfileLabel">上传文件</h4>
+            </div>
+            <div class="modal-body">
+                {#                书写内容部分#}
+                <form action="/app/upfile/" id="upfileform" method="post">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        {% load static %}
+                        <label for="linuxpath">输入linux存储路径
+                            <p><input type="text" id="linuxpath" name="linuxpath">
+                            </p>
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        {% load static %}
+                        <label for="upfile">选择文件
+                            <input type="file" id="upfile_input" name="upfile_input">
+                        </label>
+
+                    </div>
+
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="upfile_btn">确认上传</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal 添加shell脚本 -->
+<div class="modal fade" id="addshell" tabindex="-1" role="dialog" aria-labelledby="addshellLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="addshellLabel">添加shell脚本</h4>
+            </div>
+            <div class="modal-body">
+                {#                书写内容部分#}
+                <form action="/app/addshell/" id="addshellform" method="post">
+                    {% csrf_token %}
+                    {% for ipt in shellform_obj %}
+                        <div class="form-group">
+                            <label for="{{ form.auto_id }}">{{ ipt.label }}</label>
+                            {{ ipt }}<span style="color:red">{{ ipt.errors.0 }}</span>
+                        </div>
+                    {% endfor %}
+
+                    <div class="form-group">
+                        {% load static %}
+
+                        <label for="shellfile">选择shell脚本
+                            <input type="file" id="shellfile" name="shellfile">
+                        </label>
+                    </div>
+                </form>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="addshell_btn">确认添加</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+{#修改密码#}
+<script>
+    $('#submit_btn').click(function () {
+        $.ajax({
+            url: "{% url 'changepsd' %}",
+            type: "post",
+            data: {
+                "oldpsd": $('#oldpsd').val(),
+                "newpsd": $('#newpsd').val(),
+                "sedpsd": $('#sedpsd').val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+            },
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = '/app/login/'
+                } else {
+                    $("#error_msg").text(args.msg)
+                }
+            }
+        })
+    })
+</script>
+
+{#添加主机#}
+<script>
+    $('#addhost_btn').click(function () {
+        let formdataobj = new FormData();
+        //遍历添加form里的input键值对
+        $.each($('#addhostform').serializeArray(), function (index, obj) {
+            formdataobj.append(obj.name, obj.value);
+        });
+
+        $.ajax({
+            url: "/app/addhost/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = args.url;
+                } else {
+                    $.each(args.msg, function (k, v) {
+                        let targetid = "#id_" + k;
+                        $(targetid).next().text(v[0]).parent().addClass('has-error');
+                    })
+                }
+            }
+        })
+    })
+</script>
+
+
+{#host全选取消全选#}
+<script>
+    $("#checkall").click(function () {
+        {#$("input[name='checkbox']").attr("checked","true");#}
+        if ($("#checkall").prop("checked")) {
+            {#$("input[type='checkbox'][name='checkedres']").prop("checked", true);//全选#}
+            $("input[type='checkbox'][name='checkedres']").attr("checked", "true");//全选
+
+        } else {
+            {#$("input[type='checkbox'][name='checkedres']").prop("checked", false);  //取消全选#}
+            $("input[type='checkbox'][name='checkedres']").removeAttr("checked");//全选
+        }
+    })
+
+</script>
+
+{#shell全选取消全选#}
+<script>
+    $("#selectAll").click(function () {
+        {#$("input[name='checkbox']").attr("checked","true");#}
+        if ($("#selectAll").prop("checked")) {
+            $("input[type='checkbox'][name='checkedshell']").attr("checked", true);//全选
+
+
+        } else {
+            $("input[type='checkbox'][name='checkedshell']").attr("checked", false);  //取消全选
+        }
+    })
+
+</script>
+
+{#确认添加shell脚本#}
+<script>
+    $('#addshell_btn').click(function () {
+        let formdataobj = new FormData();
+        //遍历添加form里的input键值对
+        $.each($('#addshellform').serializeArray(), function (index, obj) {
+            formdataobj.append(obj.name, obj.value);
+        });
+        //添加shell文件
+        let shellfile = $('#shellfile')[0].files[0]
+        if (shellfile){
+            formdataobj.append('shellfile', shellfile);
+        }else {
+            alert("请先选择文件")
+            return
+        }
+        $.ajax({
+            url: "/app/addshell/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    alert(args.msg)
+                    window.location.href = args.url;
+                } else {
+                    alert(args.msg)
+                }
+            }
+        })
+    })
+</script>
+
+{# 获取默认文件名作为shell名称 #}
+<script>
+    $('#shellfile').change(function () {
+        {#$("#addshellform p input").value = $("shellfile").name.split(".")[0]#}
+        $("input[name='name']").val($('#shellfile')[0].files[0].name.split(".")[0])
+    })
+</script>
+{#{给所有input框绑定获取焦点事件#}
+<script>
+    $('input').focus(function () {
+        $(this).next().text("").parent().removeClass('has-error')
+    })
+</script>
+
+{#删除主机#}
+<script>
+    $('a[name="delhost"]').click(function () {
+        let formdataobj = new FormData();
+        formdataobj.append('pk', $(this).attr("pk"));
+        formdataobj.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+        console.log($(this).pk)
+        $.ajax({
+            url: "/app/delhost/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = args.url;
+                } else {
+                    $.each(args.msg, function (k, v) {
+                        let targetid = "#id_" + k;
+                        $(targetid).next().text(v[0]).parent().addClass('has-error');
+                    })
+                }
+            }
+        })
+    })
+</script>
+
+{#删除shell#}
+<script>
+    $('a[name="delshell"]').click(function () {
+        let formdataobj = new FormData();
+        formdataobj.append('pk', $(this).attr("pk"));
+        formdataobj.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+        console.log($(this).pk)
+        $.ajax({
+            url: "/app/delshell/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = args.url;
+                } else {
+                    $.each(args.msg, function (k, v) {
+                        let targetid = "#id_" + k;
+                        $(targetid).next().text(v[0]).parent().addClass('has-error');
+                    })
+                }
+            }
+        })
+    })
+</script>
+
+
+{#单选修改checked属性#}
+<script>
+    $("input[name='checkedres']").click(function () {
+        if ($(this).attr("checked")) {
+            $(this).removeAttr("checked")
+        } else {
+            $(this).attr("checked", "true")
+        }
+    })
+
+    $("input[name='checkedshell']").click(function () {
+        if ($(this).attr("checked")) {
+            $(this).removeAttr("checked")
+        } else {
+            $(this).attr("checked", "true")
+        }
+    })
+
+</script>
+
+
+{#开始安装#}
+<script>
+    $('#runinstall').click(function () {
+        var hostpk_ls = [];
+        var shellpk_ls = [];
+
+        $("input[name='checkedres']").each(function (k, v) {
+            let pk = $(this).attr("pk")
+            if ($(this).attr("checked")) {
+                hostpk_ls.push(pk)
+            }
+        })
+
+        $("input[name='checkedshell']").each(function (k, v) {
+            let pk = $(this).attr("pk")
+            if ($(this).attr("checked")) {
+                shellpk_ls.push(pk)
+            }
+        })
+
+        let formdataobj = new FormData();
+        formdataobj.append('hostpk_ls', hostpk_ls);
+        formdataobj.append('shellpk_ls', shellpk_ls);
+        formdataobj.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+        $.ajax({
+            url: "/app/runinstall/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    {#window.location.href = args.url;#}
+                    $.each(args.backend_ls, function (k, v) {
+                        $("#result").append("<tr><td>" + v + "</tr></td>")
+                    })
+                } else {
+                    alert(args.msg)
+                }
+            }
+        })
+    })
+</script>
+
+{#上传文件#}
+<script>
+    $('#upfile_btn').click(function () {
+        var hostpk_ls = [];
+        $("input[name='checkedres']").each(function (k, v) {
+            let pk = $(this).attr("pk")
+
+            if ($(this).attr("checked")) {
+                hostpk_ls.push(pk)
+            }
+        })
+
+        linuxpath = $("#linuxpath").val()
+        let formdataobj = new FormData();
+        formdataobj.append('hostpk_ls', hostpk_ls);
+        formdataobj.append("csrfmiddlewaretoken", "{{ csrf_token }}")
+        //添加upfile文件
+        let fileobj = $('#upfile_input')[0].files[0]
+        if (fileobj){
+            formdataobj.append('upfile', fileobj);
+        }else {
+            alert("请选择文件")
+            return
+        }
+        formdataobj.append("linuxpath", linuxpath)
+        $.ajax({
+            url: "/app/upfile/",
+            type: 'post',
+            data: formdataobj,
+            contentType: false,
+            processData: false,
+
+            success: function (args) {
+                if (args.code == 1000) {
+                    alert(args.msg)
+                    window.location.href = args.url;
+                } else {
+                    alert(args.msg)
+                }
+            }
+        })
+    })
+</script>
+
+<script>
+    window.onload=function(){
+    let heitht = document.body.clientHeight
+    $('div[class="panel panel-info"]').height(heitht)
+    };
+
+</script>
+</html>

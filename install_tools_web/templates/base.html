@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            首页
+        {% endblock %}
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+{% block style %}
+
+{% endblock %}
+
+</head>
+<body>
+{#顶部导航#}
+{% block nav %}
+    <ul class="nav nav-tabs">
+        <li><a href="">首页</a></li>
+        <li><a href="">首页</a></li>
+        <li class="pull-right">
+            {% load static %}
+            {% if request.user.is_authenticated %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="40"
+                     height="40">
+            {% else %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="36"
+                     height="36">
+            {% endif %}
+        </li>
+
+        {% if request.user.is_authenticated %}
+            <!-- Single button -->
+            <li class="pull-right">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        更多操作
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" data-toggle="modal"
+                               data-target="#myModal">修改密码</a></li>
+                        <li><a href="#">更换头像</a></li>
+                        <li><a href="{% url 'backend' %}">后台管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'logout' %}">退出登入</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="pull-right"><a href="">{{ request.user.username }}</a></li>
+
+        {% else %}
+            <li class="pull-right">
+                <a href="{% url 'login' %}" class="">登入</a>
+            </li>
+            <li class="pull-right">
+                <a href="{% url 'register' %}" class="">注册</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{#主题部分#}
+<div class="container-fluid">
+    <div class="row">
+        {#        左侧边栏#}
+        {% block left %}
+            <div class="col-md-3">
+                {% load mytags %}
+                {% left_menu username %}
+            </div>
+        {% endblock %}
+
+        {#        中间主体部分#}
+        {% block main %}
+            <div class="col-md-9">
+
+                <ul>
+                    {% for article in article_obj %}
+
+
+                        <li>
+                        <div class="media">
+                            <div class="media-left">
+                                <a href="#">
+                                    <img class="media-object" src="/media/{{ article.blog.userinfo.avatar }}" alt="..."
+                                         width="100" height="100">
+                                </a>
+                            </div>
+                            <div class="media-body">
+                                <a href="/app/{{ username }}/article_detail/{{ article.pk }}">
+                                    <h4 class="media-heading" style="color: red">{{ article.title }}</h4>
+                                    <p>{{ article.desc }}</p>
+                                </a>
+                            </div>
+                            <p>
+                                <span>{{ article.blog.userinfo.username }}</span>
+                                <span>发表于</span>
+                                <span>{{ article.create_time|date:'Y-m-d' }}</span>
+                                <span>评论数</span>
+                                <span>{{ article.comment_num }}</span>
+                                <span>好</span>
+                                <span>{{ article.up_num }}</span>
+                                <span>不好</span>
+                                <span>{{ article.down_num }}</span>
+                            </p>
+
+                        </div>
+                    {% endfor %}
+                    </li>
+                </ul>
+            </div>
+        {% endblock %}
+    </div>
+</div>
+
+
+<!-- Modal -->
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                        aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">修改密码</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class="col-md-8 col-md-offset-2">
+                            <div class="formgroup">
+                                <label for="oldpsd">旧密码</label>
+                                <input type="password" name="oldpsd" id="oldpsd" class="form-control">
+                            </div>
+                            <div class="formgroup">
+                                <label for="newpsd">新密码</label>
+                                <input type="password" name="newpsd" id="newpsd" class="form-control">
+                            </div>
+
+                            <div class="formgroup">
+                                <label for="sedpsd">确认密码</label>
+                                <input type="password" name="sedpsd" id="sedpsd" class="form-control">
+                            </div>
+
+                            <br>
+                            <span style="color: red;" id="error_msg"></span>
+                            {#                <input type="button" id="submit_btn" class="btn btn-success form-control" value="提交修改">#}
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" id="submit_btn">提交修改</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+
+<script>
+    $('#submit_btn').click(function () {
+        $.ajax({
+            url: "{% url 'changepsd' %}",
+            type: "post",
+            data: {
+                "oldpsd": $('#oldpsd').val(),
+                "newpsd": $('#newpsd').val(),
+                "sedpsd": $('#sedpsd').val(),
+                "csrfmiddlewaretoken": "{{ csrf_token }}",
+            },
+            success: function (args) {
+                if (args.code == 1000) {
+                    window.location.href = '/app/login/'
+                } else {
+                    $("#error_msg").text(args.msg)
+                }
+            }
+        })
+    })
+</script>
+{% block script %}
+
+{% endblock %}
+
+</html>

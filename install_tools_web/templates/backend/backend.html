@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+            后台管理
+        {% endblock %}
+    </title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
+    <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
+    <script src="/static/bootstrap/js/bootstrap.js"></script>
+    {% block style %}
+
+    {% endblock %}
+
+</head>
+<body>
+{#顶部导航#}
+{% block nav %}
+    <ul class="nav nav-tabs">
+        <li><a href="">首页</a></li>
+        <li><a href="">首页</a></li>
+        <li class="pull-right">
+            {% load static %}
+            {% if request.user.is_authenticated %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="40"
+                     height="40">
+            {% else %}
+                <img src="/media/avatar/default.jpg" id="avatar_img" class="img-circle"
+                     width="36"
+                     height="36">
+            {% endif %}
+        </li>
+
+        {% if request.user.is_authenticated %}
+            <!-- Single button -->
+            <li class="pull-right">
+                <div class="dropdown">
+                    <button class="btn btn-default dropdown-toggle" type="button" id="dropdownMenu1"
+                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                        更多操作
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu1">
+                        <li><a href="#" data-toggle="modal"
+                               data-target="#myModal">修改密码</a></li>
+                        <li><a href="#">更换头像</a></li>
+                        <li><a href="{% url 'backend' %}">后台管理</a></li>
+                        <li role="separator" class="divider"></li>
+                        <li><a href="{% url 'logout' %}">退出登入</a></li>
+                    </ul>
+                </div>
+            </li>
+
+            <li class="pull-right"><a href="">{{ request.user.username }}</a></li>
+
+        {% else %}
+            <li class="pull-right">
+                <a href="{% url 'login' %}" class="">登入</a>
+            </li>
+            <li class="pull-right">
+                <a href="{% url 'register' %}" class="">注册</a>
+            </li>
+        {% endif %}
+    </ul>
+{% endblock %}
+
+{#主体部分#}
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-2">
+            <div class="list-group">
+                <a href="#" class="list-group-item active">
+                    文章编辑
+                </a>
+                <a href="{% url 'add_article' %}" class="list-group-item">添加文章</a>
+                <a href="#" class="list-group-item">修改文章</a>
+                <a href="#" class="list-group-item">删除文章</a>
+                <a href="#" class="list-group-item">草稿箱</a>
+            </div>
+        </div>
+        <div class="col-md-10">
+            {% block main %}
+                <ul class="nav nav-tabs">
+                    <li role="presentation" class="active"><a href="#">所有文章</a></li>
+                    <li role="presentation"><a href="#">随笔</a></li>
+                    <li role="presentation"><a href="#">草稿</a></li>
+                    <li role="presentation"><a href="#">设置</a></li>
+                </ul>
+                <ul>
+                    {% for article in article_ls %}
+                        <li>
+                        {{ article.title }}
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                </div>
+            {% endblock %}
+    </div>
+</div>
+
+{#右侧导航#}
+
+</body>
+
+</html>

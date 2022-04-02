@@ -1,0 +1,85 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h1 class="text-center">注册</h1>
+                <form action="" id="myform" method="post">
+                    {% csrf_token %}
+                    {% for ipt in regform_obj %}
+                        <div class="form-group">
+                            <label for="{{ form.auto_id }}">{{ ipt.label }}</label>
+                            {{ ipt }}<span style="color:red">{{ ipt.errors.0 }}</span>
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        {% load static %}
+
+                        <label for="avatar">选择头像
+                            <img src="/media/avatar/default.jpg" id="avatar_img"
+                                 class="pull-right img-circle"
+                                 alt=""
+                                 width="100" height="100">
+
+                            <input type="file" id="avatar" name="avatar" style="display: none;">
+                        </label>
+                    </div>
+                    <input type="button" class="btn btn-success form-control" value="注册" id="id_commit">
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        $('#avatar').change(function () {
+            // 创建一个文件阅读器对象
+            let filerederobj = new FileReader()
+            //获取用户上传头像对象
+            let myavatarobj = $(this)[0].files[0]
+            // 把头像交给阅读器对象,这是异步操作
+            filerederobj.readAsDataURL(myavatarobj)
+            //等待加载头像完毕
+            filerederobj.onload = function () {
+                $('#avatar_img').attr('src', filerederobj.result)
+            }
+        })
+    </script>
+    <script>
+        $('#id_commit').click(function () {
+            let formdataobj = new FormData();
+            //遍历添加form里的input键值对
+            $.each($('#myform').serializeArray(), function (index, obj) {
+                formdataobj.append(obj.name, obj.value);
+            });
+            //添加头像
+            formdataobj.append('avatar', $('#avatar')[0].files[0]);
+
+            $.ajax({
+                url: "",
+                type: 'post',
+                data: formdataobj,
+                contentType: false,
+                processData: false,
+
+                success: function (args) {
+                    if (args.code == 1000) {
+                        window.location.href = args.url;
+                    } else {
+                        $.each(args.msg, function (k, v) {
+                            let targetid = "#id_" + k;
+                            $(targetid).next().text(v[0]).parent().addClass('has-error');
+                        })
+                    }
+                }
+            })
+        })
+    </script>
+    <script>
+    {#{给所有input框绑定获取焦点事件#}
+    $('input').focus(function () {
+        $(this).next().text("").parent().removeClass('has-error')
+    })
+    </script>
+{% endblock %}

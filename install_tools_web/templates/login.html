@@ -1,0 +1,72 @@
+{% extends 'index.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-8 col-md-offset-2">
+                <h1 class="text-center">登入</h1>
+                <div class="formgroup">
+                    <label for="username">用户名</label>
+                    <input type="text" name="username" id="username" class="form-control">
+                </div>
+                <div class="formgroup">
+                    <label for="password">密码</label>
+                    <input type="password" name="password" id="password" class="form-control">
+                </div>
+                <div class="formgroup">
+                    <label for="code">验证码</label>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <input type="text" name="code" id="code" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            {% load static %}
+                            {#                            <img src="{% static 'imgs/avatar/default.jpg' %}" alt="" height="35" width="300" >#}
+                            <img src="{% url 'get_code' %}" id="code_img" alt="" height="60" width="240">
+                        </div>
+                    </div>
+                </div>
+                <br>
+                <span style="color: red;" id="error_msg"></span>
+                <input type="button" id="submit_btn" class="btn btn-success form-control" value="登入">
+                <br>
+                <br>
+                <a href="{% url 'register' %}"  class="btn btn-success form-control" >注册</a>
+            </div>
+        </div>
+    </div>
+
+
+{% endblock %}
+
+{% block script %}
+    <script>
+        $("#code_img").click(function () {
+            let img_src = $(this).attr('src');
+            $(this).attr('src', img_src += "?");
+        })
+    </script>
+    <script>
+        $('#submit_btn').click(function () {
+            $.ajax({
+                url:"{% url 'login' %}",
+                type:"post",
+                data:{
+                    "username":$('#username').val(),
+                    "password":$('#password').val(),
+                    "code":$('#code').val(),
+                    "csrfmiddlewaretoken":"{{ csrf_token }}",
+                },
+                success:function (args) {
+                    if(args.code == 1000){
+                        window.location.href = args.url
+                    }else
+                    {
+                        $("#error_msg").text(args.msg)
+                    }
+                }
+            })
+        })
+    </script>
+
+{% endblock %}
