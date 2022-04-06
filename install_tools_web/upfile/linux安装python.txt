@@ -1,0 +1,39 @@
+https://www.cnblogs.com/xiujin/p/11477419.html
+安装依赖
+yum -y groupinstall "Development tools"
+yum -y install zlib-devel bzip2-devel openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel
+yum install -y libffi-devel zlib1g-dev
+yum install zlib* -y
+wget wget https://www.python.org/ftp/python/3.7.2/Python-3.7.2.tar.xz
+tar -xvJf  Python-3.7.2.tar.xz
+mkdir /usr/local/python3 
+cd Python-3.7.2
+./configure --prefix=/usr/local/python3 --enable-optimizations --with-ssl 
+make && make install
+ln -s /usr/local/python3/bin/python3 /usr/local/bin/python3
+ln -s /usr/local/python3/bin/pip3 /usr/local/bin/pip3
+
+安装virtualenv和virtualenvwrapper
+https://blog.csdn.net/qq_44739762/article/details/100163746
+sudo pip3 install virtualenv
+sudo pip3 install virtualenvwrapper
+sudo ln -s /usr/local/python3/bin/virtualenv /usr/bin/virtualenv
+cd ~
+ls -la
+mkdir ~/.virtualenvs  # 主目录名称可以自拟
+sudo find / -name 'virtualenvwrapper.sh'
+把这里查看到的目录替换到下面
+vim ~/.bashrc
+VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3  # 指定virtualenvwrapper执行的python版本
+export WORKON_HOME=$HOME/.envs  # 指定虚拟环境的主目录
+source /usr/local/python3/bin/virtualenvwrapper.sh  # virtualenvwrapper.sh所在目录
+source ~/.bashrc
+
+创建虚拟环境
+mkvirtualenv -p python3 flask_py3
+deactivate
+workon flask_py3
+
+
+
+

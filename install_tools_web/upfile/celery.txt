@@ -1,0 +1,3 @@
+pip install celery
+
+三部分组成：blocker worker backend

@@ -100,7 +100,7 @@ class Regform(forms.Form):
 
 
 class Shellform(forms.Form):
-    name = forms.CharField(label="shell脚本名称", min_length=1, max_length=64,
+    name = forms.CharField(label="shell脚本名称", min_length=1, max_length=200,
                                error_messages={
                                    "required": "shell名称不能为空",
                                    "min_length": "shell名称最小1位",

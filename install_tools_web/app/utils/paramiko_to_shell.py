@@ -14,6 +14,10 @@ def upfile_to_linux(hostdic, filename,linuxpath):
         t = paramiko.Transport((host, int(port)))
         t.connect(username=user, password=password)
         sftp = paramiko.SFTPClient.from_transport(t)
+    except Exception as e:
+        msg =  "连接主机失败"
+        return msg
+    try:
         dirpath = os.path.join(BASE_DIR,"upfile")
         filepath = os.path.join(dirpath,filename)
         linuxpath = os.path.join(linuxpath,filename).replace("\\","/")
@@ -39,6 +43,10 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
         t = paramiko.Transport((host, int(port)))
         t.connect(username=user, password=password)
         sftp = paramiko.SFTPClient.from_transport(t)
+    except Exception as e:
+        return
+
+    try:
         for shellname in shellname_ls:
             lpath = "/home/" + shellname
             dirpath = os.path.join(BASE_DIR, "media")
@@ -48,6 +56,7 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
             run_shellpath_ls.append(lpath)
         t.close()
     except Exception as e:
+
         print("问题少年的问题是：", e)
 
         # 执行shell脚本

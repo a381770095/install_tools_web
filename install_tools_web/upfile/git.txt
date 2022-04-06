@@ -1,0 +1,159 @@
+远程仓库
+https://www.jianshu.com/p/52b2bd93b066
+a381770095
+381770095@qq.com
+Aa405316
+
+安装git
+sudo apt-get install git
+
+ssh-keygen -t rsa -C "381770095@qq.com" 一路回车
+
+
+打开www.github.com 注册账号/登入(新注册的需要验证邮箱）
+
+cat ~/.ssh/id_rsa.pub    (查看公钥并复制）
+
+win系统生成公钥
+邮件打开git bash
+键入命令：ssh-keygen  -t  rsa  -C  "email@email.com"，引号中是你在github上的注册邮箱
+一路回车
+第二步已经成功的生成了ssh key，再输入eval  "ssh-agent  -s"
+再输入ssh-add  ~/.ssh/id_rsa，再输入你设定的ssh的密码，在输入ssh-add  ~/.ssh/id_rsa可能会产生“could not open a connection to your authentication agent”错误
+这时直接输入：ssh-agent   bash，再输入ssh-add   ~/.ssh/id_rsa就可以
+用vim复制key的内容：vim ~/.ssh/id_rsa.pub，右键复制出现的内容
+添加到github中
+
+
+回网址  右上角  sittings
+SSH and GPG keys
+新建 New SSH key 粘贴 
+
+第一次进入需初始化仓库
+git仓库初始化
+设置仓库的用户名和用户邮箱信息
+git config --global user.name 'a381770095'
+
+git config --global user.email '381770095@qq.com'
+
+在本地learngit仓库下运行命令（此仓库链接远程仓库）
+git remote add origin git@github.com:chendan381770095/1704.git  (链接远程仓库）
+git push -u origin master
+
+如果运行出错 先运行
+git fetch orgin          （初始化远程库）
+git merge origin5/master  （合并本地库和远程库）
+
+第一次运行要确认 
+
+克隆远程库
+git clone git@github.com:chendan381770095/1704.git  (克隆远程库到本地）
+
+
+…or create a new repository on the command line
+ echo "# chendan" >> README.md
+git init
+git add README.md  #添加文件
+git commit -m "first commit"   #添加文件注释
+git remote add origin git@github.com:a381770095/chendan.git  #链接仓库
+git remote rm origin   #推出当前仓库
+git push -u origin master   #上传文件到仓b账号
+
+
+
+github账号
+ssh-keygen -t rsa -C "chendan000728@163.com" 一路回车
+SDGG
+chendan000728@163.com
+Aa405316
+ll
+设置仓库用户名和邮箱
+git config --global user.name 'SDGG'
+
+git config --global user.email 'chendan000728@163.com'
+
+git init
+git add xxx.txt
+git commit -m "说明"
+git remote add origin https://github.com/SDGG/Centos-Phantomjs.git
+git push -u origin master
+
+
+mkdir mygit 创建仓库
+cd mygit 进入仓库
+git init 初始化仓库
+ls -ah 查看git目录
+git status 查看状态
+git diff filename 比较文件不同
+git log --pretty=oneline  查看日志
+git reset --hard HEAD^ 回退上一版本
+git reset --hard HEAD~5 回退前5个版本
+git reset --hard 版本号  回退道版本号
+git reflog  查看前一版本
+git checkout -- file 撤销修改
+git checkout -- * (下载全部内容)
+
+
+git分支
+
+git checkout -b dev  （创建分支和切换到分支）
+vim readme.txt       （创建文件）
+git add readme.txt   （添加到暂存区）
+git commit -m "说明"  (添加到库存区）
+git checkout master   (切换回主干）
+git merge dev        （把dev合并到当前分支）
+git branch -d dev    （删除分支）
+git branch           （提交）
+
+
+
+工作区
+暂存区
+版本库
+git命令
+git inifile  #git管理file
+git init      #当前文件夹全被git管理
+git add a.txt #把a.txt提交到暂存区
+git add .        #把当前所有文件提交到暂存区
+git commit -m "注释内容"  #暂存区所有文件提交到版本库
+git checkout .  #恢复到提交版本的位置
+git log   #查看git日志，能查看到版本号
+git reset --hard 版本号  #回滚到版本号的位置
+git status    #查看状态
+
+忽略文件
+在.git 同目录下创建.gitignore.文件
+语法
+直接写文件或者文件夹名字，或者pattern
+
+分支操作
+git branch dev  #创建分支
+git checkout -b dev #创建并切换到该分支
+git branch -d dev #删除分支 ，删除时必须切换到其他分支
+git checkout dev #切换到该分支
+git merge dev #把dev分支合并到当前分支
+
+git push origin master #把主分支提交到远程仓库
+
+冲突解决
+dev1
+dev2同时修改了相同部分
+get merge dev2 #把dev2合并到dev1
+这时会报错，在dev1上修改冲突部分就可以了
+重新提交dev1，冲突解决
+
+
+连接远程仓库
+echo "# install_tools_web" >> README.md 
+git init 
+git add README.md 
+git commit -m "first commit" 
+git branch -M main 
+git remote add origin git@github.com:a381770095/install_tools_web.git  #连接远程仓库，origin名字随意取，下面提交时使用
+ git push -u origin master  #把主分支提交到远程仓库
+
+
+下载项目
+git clone git@github.com:a381770095/install_tools_web.git
+
+git pull origin master # 拉取远程仓库代码，提交的时候先拉再提

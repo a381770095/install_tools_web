@@ -19,12 +19,12 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import F
 from django.db import transaction
 from app.utils.paramiko_to_shell import paramiko_uploadfile_to_linux,upfile_to_linux
-
+from install_tools_web.settings import BASE_DIR
 
 def home(request):
     return render(request, 'home.html', locals())
 
-
+@login_required
 def list(request):
     host_ls = models.Hosts.objects.filter().values('host', "pk").all()
     tool_ls = models.Shells.objects.filter().values("name", "pk").all()
@@ -118,6 +118,7 @@ def changepsd(request):
     return render(request, 'changepsd.html', locals())
 
 
+@login_required
 def addhost(request):
     if request.is_ajax():
         back_dic = {}
@@ -134,6 +135,7 @@ def addhost(request):
     return render(request, 'list.html', locals())
 
 
+@login_required
 def addshell(request):
     if request.method == "POST":
         if request.is_ajax():
@@ -145,10 +147,17 @@ def addshell(request):
                 file_obj = request.FILES.get("shellfile")
                 if file_obj:
                     if file_obj.name.endswith(".sh"):
-                        clean_data["path"] = file_obj
-                        models.Shells.objects.create(**clean_data)
-                        back_dic["msg"] = "添加脚本成功"
-                        back_dic['url'] = '/app/list/'
+                        # 查看文件名是否已经存在
+                        query = models.Shells.objects.filter(path="shellfile/"+file_obj.name)
+                        if query:
+                            back_dic['code'] = 1004
+                            back_dic["msg"] = "该文件名已经存在，您是不是上传了相同的脚本"
+                        else:
+                            clean_data["path"] = file_obj
+                            models.Shells.objects.create(**clean_data)
+                            back_dic["msg"] = "添加脚本成功"
+                            back_dic['url'] = '/app/list/'
+                            back_dic['code'] = 1000
                     else:
                         back_dic['code'] = 1002
                         back_dic["msg"] = "请上传shell脚本文件"
@@ -160,13 +169,16 @@ def addshell(request):
     return render(request, 'list.html', locals())
 
 
+@login_required
 def delhost(request):
     if request.method == "POST":
         if request.is_ajax():
             back_dic = {}
             host_pk = request.POST.get("pk")
-            res = models.Hosts.objects.filter(id=int(host_pk)).delete()
+            res = models.Hosts.objects.filter(id=int(host_pk))
             if res:
+                res.delete()
+
                 back_dic = {"code": 1000, 'msg': "删除成功"}
                 back_dic['url'] = '/app/list/'
             else:
@@ -176,13 +188,21 @@ def delhost(request):
             return JsonResponse(back_dic)
 
 
+@login_required
 def delshell(request):
     if request.method == "POST":
         if request.is_ajax():
             back_dic = {}
             shell_pk = request.POST.get("pk")
-            res = models.Shells.objects.filter(id=int(shell_pk)).delete()
+            res = models.Shells.objects.filter(id=int(shell_pk))
             if res:
+                delpath = res.values("path").first()
+                dir = os.path.join(BASE_DIR,"media")
+                delpath = delpath.get("path")
+                delpath = os.path.join(dir,delpath)
+                delpath = delpath.replace("\\","/")
+                os.remove(delpath)
+                res.delete()
                 back_dic = {"code": 1000, 'msg': "删除成功"}
                 back_dic['url'] = '/app/list/'
             else:
@@ -192,6 +212,7 @@ def delshell(request):
             return JsonResponse(back_dic)
 
 
+@login_required
 def runinstall(request):
     if request.method == "POST":
         if request.is_ajax():
@@ -229,36 +250,18 @@ def runinstall(request):
         for hostdic in hostdic_ls:
             resultmsg = hostdic["host"]+"\n"
             std_out_ls = paramiko_uploadfile_to_linux(hostdic, shellname_ls)
-            for std_out in std_out_ls:
-                resultmsg +=std_out+ "\n"
-        backend_ls.append(resultmsg)
+            if not std_out_ls:
+                resultmsg +=                 "连接主机失败，请重新添加更换密码或更换其他主机\n"
+            else:
+                for std_out in std_out_ls:
+                    resultmsg +=std_out+ "\n"
+            backend_ls.append(resultmsg)
         back_dic["code"] = 1000
         back_dic["backend_ls"] = backend_ls
         return JsonResponse(back_dic)
 
-
-def upfile(request):
-    if request.method == "POST":
-        if request.is_ajax():
-            back_dic = {}
-            formobj = Shellform(request.POST)
-            if formobj.is_valid():
-                back_dic = {"code": 1000, 'msg': "上传文件成功"}
-                clean_data = formobj.cleaned_data
-                file_obj = request.FILES.get("upfile")
-                if file_obj:
-                    clean_data["path"] = file_obj
-                    models.Shells.objects.create(**clean_data)
-                    back_dic['url'] = '/app/list/'
-
-            else:
-                back_dic['code'] = 1001
-                back_dic['msg'] = formobj.errors
-            return JsonResponse(back_dic)
-    return render(request, 'list.html', locals())
-
-
 # 上传文件
+@login_required
 def upfile(request):
     if request.method == "POST":
         if request.is_ajax():
@@ -295,12 +298,15 @@ def upfile(request):
 
 
             for hostdic in hostdic_ls:
-                resultmsg = hostdic["host"]
+                resultmsg = hostdic["host"]+"\n"
                 std_out = upfile_to_linux(hostdic, filename,linuxpath)
                 resultmsg+=str(std_out)+"\n"
                 backend_ls.append(resultmsg)
             back_dic["backend_ls"] = backend_ls
             back_dic["msg"] = backend_ls
             back_dic["code"] = 1000
+            print(back_dic)
             return JsonResponse(back_dic)
 
+def test(request):
+    return render(request,'test.html', locals())

@@ -1,0 +1,7 @@
+<uwsgi>
+    <socket>127.0.0.1:8808</socket> # uwsgi 运行端口
+    <chdir>/home/install_tools_web/</chdir>   # 项目路径
+    <module>install_tools_web.wsgi</module>
+    <processes>4</processes>
+    <daemonize>uwsgi.log</daemonize>
+</uwsgi>

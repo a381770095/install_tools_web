@@ -74,17 +74,34 @@ WSGI_APPLICATION = 'install_tools_web.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'installtool',
-        'HOST':'127.0.0.1',
-        'PORT':3306,
-        'USER':'root',
-        'PASSWORD':'root',
-        'CHARSET':'utf8',
+
+import socket
+host_name = socket.gethostname()
+if host_name == "VM-12-9-centos":
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'installtool',
+            'HOST': '42.194.193.131',
+            'PORT': 3306,
+            'USER': 'root',
+            'PASSWORD': '143#*405316',
+            'CHARSET': 'utf8',
+        }
     }
-}
+
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'installtool',
+            'HOST':'127.0.0.1',
+            'PORT':3306,
+            'USER':'root',
+            'PASSWORD':'root',
+            'CHARSET':'utf8',
+        }
+    }
 
 
 
@@ -125,12 +142,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [
-    os.path.join(BASE_DIR,'static'),
-    # os.path.join(BASE_DIR, 'media'),
 
-]
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
@@ -140,3 +152,11 @@ AUTH_USER_MODEL = 'app.UserInfo'
 LOGIN_URL = '/login/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 MEDIA_URL = '/media/'
+
+ALLOWED_HOSTS = ["42.194.193.131","127.0.0.1"]
+
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'static'),
+]
+STATIC_ROOT = "/home/install_tools_web/install_tools_web/static"

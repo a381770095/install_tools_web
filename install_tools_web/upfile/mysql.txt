@@ -1,0 +1,39 @@
+linux 安装mysql
+如果遇到 如下错误
+Failing package is: mysql-community-libs-compat-5.7.37-1.el7.x86_64
+ GPG Keys are configured as: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-mysql
+执行：
+rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+
+如果没有wget,安装wget
+yum -y install wget
+wget https://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm
+rpm -ivh mysql57-community-release-el7-8.noarch.rpm
+cd /etc/yum.repos.d/
+yum -y install mysql-server
+systemctl start mysqld
+获取临时密码
+grep 'temporary password' /var/log/mysqld.log
+mysql -uroot -p
+黏贴上临时密码登入
+把MySQL的密码校验强度改为低风险
+set global validate_password_policy=LOW;
+修改密码长度为5
+set global validate_password_length=5;
+设置密码
+ALTER USER 'root'@'localhost' IDENTIFIED BY '143#*405316';
+
+关闭防火墙
+sudo systemctl disable firewalld
+修改任何人可以连接
+mysql -uroot -padmin
+use mysql;
+select Host,User from user;
+update user set Host='%' where User='root';
+flush privileges;
+
+如果是云服务器要到控制台开放端口
+
+
+
+

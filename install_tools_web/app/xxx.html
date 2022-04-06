@@ -1,11 +1,15 @@
-<!DOCTYPE html>
+<!DOCTYPE>
 <html>
 <head>
-<title>绛夊緟鏁堟灉</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
-    <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
-    <script src="/static/bootstrap/js/bootstrap.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=gbk" />
+<title>等待效果</title>
+<link rel="stylesheet" href="../loading/bootstrap/css/bootstrap.min.css"
+    type="text/css">
+<script type="text/javascript"
+    src="../loading/bootstrap/js/jquery-1.9.1.js"></script>
+<script type="text/javascript"
+    src="../loading/bootstrap/js/bootstrap.min.js"></script>
+
 <style>
 .loading {
     width: 160px;
@@ -30,15 +34,11 @@
 <script type="text/javascript">
         function  HtmlLoad(url){
             $('#myModal').modal('show');
-            alert("???")
-           $('#myModal').modal('hide');
 
-
-    /*
         setTimeout(function () {
        $('#myModal').modal('hide');
     }, 3000);
-*/
+
         }
 </script>
 
@@ -47,16 +47,13 @@
 <body>
     <div class="container">
         <div class="row">
-            <button id="load" onclick="HtmlLoad()">鍔犺浇椤甸潰</button>
+            <button id="load" onclick="HtmlLoad()">加载页面</button>
         </div>
-
         <div id="myModal" class="modal fade" data-keyboard="false"
             data-backdrop="static" data-role="dialog"
             aria-labelledby="myModalLabel" aria-hidden="true">
-            <div id="loading" class="loading">绛夊緟瀹屾垚</div>
+            <div id="loading" class="loading">加载中。。。</div>
         </div>
-
-
     </div>
 </body>
 </html>

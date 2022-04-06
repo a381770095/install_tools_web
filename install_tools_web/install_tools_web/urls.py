@@ -25,6 +25,7 @@ from django.urls import re_path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('test/', views.test,name="test"),
     re_path('^$', views.home,name="home"),
     re_path(r'^media/(?P<path>.*)',serve,{'document_root':settings.MEDIA_ROOT}),
     re_path('app/', include(app_urls)),

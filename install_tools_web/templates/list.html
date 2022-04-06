@@ -10,8 +10,33 @@
     <link rel="stylesheet" href="/static/bootstrap/css/bootstrap.min.css">
     <script src="/static/bootstrap/jq/jquery-3.6.0.js"></script>
     <script src="/static/bootstrap/js/bootstrap.js"></script>
+
+{#等待效果样式#}
+<style>
+.loading {
+    width: 160px;
+    height: 56px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    line-height: 56px;
+    color: #fff;
+    padding-left: 60px;
+    font-size: 15px;
+    background: #000 url(../loading/image/loading.gif) no-repeat 10px 50%;
+    opacity: 0.7;
+    z-index: 9999;
+    -moz-border-radius: 20px;
+    -webkit-border-radius: 20px;
+    border-radius: 20px;
+    filter: progid:DXImageTransform.Microsoft.Alpha(opacity=70);
+}
+</style>
+
 </head>
 <body >
+<div id="foo" style="width: 100%; height: 100%"></div>
+{#需要显示转圈圈直接调用 showLoading(true);取消转圈圈直接调用showLoading(false);#}
 {% block content %}
     <ul class="nav nav-tabs">
         <li>
@@ -80,7 +105,7 @@
                         </tr>
                         {% for host in host_ls %}
                             <tr>
-                                <td><input type="checkbox" pk={{ host.pk }} name="checkedres"
+                                <td><input type="checkbox" pk={{ host.pk }} name='hostsub'
                                            value={{ host.host }}/>
                                 </td>
                                 <td>
@@ -96,7 +121,7 @@
                         {% endfor %}
                         <tr>
                             <td>
-                                <p name="checkall"><input id="checkall" name="" type="checkbox" value="全选"/>全选</p>
+                                <p  ><input id="hostall"  type="checkbox" value="全选"/>全选</p>
 
                             </td>
                         </tr>
@@ -128,7 +153,7 @@
                         {% for tool in tool_ls %}
                             <tr>
                                 <td>
-                                    <input type="checkbox" name="checkedshell" pk={{ tool.pk }} value=""/>
+                                    <input type="checkbox" name="toolsub" pk={{ tool.pk }} value=""/>
                                 </td>
                                 <td>
                                     {{ tool.name }}
@@ -139,7 +164,7 @@
                             </tr>
                         {% endfor %}
                         <tr>
-                            <td><p name="selectAll"><input id="selectAll" name="" type="checkbox" value="全选"
+                            <td><p name="selectAll"><input id="toolall" name="" type="checkbox" value="全选"
                                                            onclick="selectAll()"/>全选
                             </p>
                             </td>
@@ -265,6 +290,7 @@
                 <h4 class="modal-title" id="addhostLabel">添加主机</h4>
             </div>
             <div class="modal-body">
+
                 {#                书写内容部分#}
                 <form action="" id="addhostform" method="post">
                     {% csrf_token %}
@@ -290,7 +316,7 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                <button type="button" class="close" id="upfile_close"  data-dismiss="modal" aria-label="Close"><span
                         aria-hidden="true">&times;</span></button>
                 <h4 class="modal-title" id="upfileLabel">上传文件</h4>
             </div>
@@ -364,7 +390,13 @@
     </div>
 </div>
 
+{#                <button type="button" class="btn btn-primary" id="onquanquan">测试转圈圈</button>#}
+{#                <button type="button" class="btn btn-primary" id="offquanquan">取消转圈圈</button>#}
+
 </body>
+
+
+
 
 {#修改密码#}
 <script>
@@ -392,6 +424,8 @@
 {#添加主机#}
 <script>
     $('#addhost_btn').click(function () {
+        $('#quanquanModal').modal('show');
+
         let formdataobj = new FormData();
         //遍历添加form里的input键值对
         $.each($('#addhostform').serializeArray(), function (index, obj) {
@@ -406,6 +440,7 @@
             processData: false,
 
             success: function (args) {
+                $('#quanquanModal').modal('hide');
                 if (args.code == 1000) {
                     window.location.href = args.url;
                 } else {
@@ -422,38 +457,56 @@
 
 {#host全选取消全选#}
 <script>
-    $("#checkall").click(function () {
-        {#$("input[name='checkbox']").attr("checked","true");#}
-        if ($("#checkall").prop("checked")) {
-            {#$("input[type='checkbox'][name='checkedres']").prop("checked", true);//全选#}
-            $("input[type='checkbox'][name='checkedres']").attr("checked", "true");//全选
+    $("#hostall").on('click',function() {
+      $("input[name='hostsub']").prop("checked", this.checked);
+      $("input[name='hostsub']").attr("checked", "true");
+});
 
-        } else {
-            {#$("input[type='checkbox'][name='checkedres']").prop("checked", false);  //取消全选#}
-            $("input[type='checkbox'][name='checkedres']").removeAttr("checked");//全选
-        }
-    })
-
+$("input[name='hostsub']").on('click',function() {
+      var $subs = $("input[name='hostsub']");
+      $("#hostall").prop("checked" , $subs.length == $subs.filter(":checked").length ? true :false);
+});
 </script>
 
 {#shell全选取消全选#}
 <script>
-    $("#selectAll").click(function () {
-        {#$("input[name='checkbox']").attr("checked","true");#}
-        if ($("#selectAll").prop("checked")) {
-            $("input[type='checkbox'][name='checkedshell']").attr("checked", true);//全选
+      $("#toolall").on('click',function() {
+      $("input[name='toolsub']").prop("checked", this.checked);
+      $("input[name='toolsub']").attr("checked", "true");
+});
 
+$("input[name='toolsub']").on('click',function() {
+      var $subs = $("input[name='toolsub']");
+      $("#toolall").prop("checked" , $subs.length == $subs.filter(":checked").length ? true :false);
+});
+</script>
 
+{#单选修改checked属性#}
+ <script>
+    $("input[name='hostsub']").click(function () {
+        if ($(this).attr("checked")) {
+            $(this).removeAttr("checked")
         } else {
-            $("input[type='checkbox'][name='checkedshell']").attr("checked", false);  //取消全选
+            $(this).attr("checked", "true")
         }
     })
 
+    $("input[name='toolsub']").click(function () {
+        if ($(this).attr("checked")) {
+            $(this).removeAttr("checked")
+        } else {
+            $(this).attr("checked", "true")
+        }
+    })
 </script>
+
+
 
 {#确认添加shell脚本#}
 <script>
     $('#addshell_btn').click(function () {
+        $('#quanquanModal').modal('show');
+
         let formdataobj = new FormData();
         //遍历添加form里的input键值对
         $.each($('#addshellform').serializeArray(), function (index, obj) {
@@ -475,8 +528,8 @@
             processData: false,
 
             success: function (args) {
-                if (args.code == 1000) {
-                    alert(args.msg)
+                $('#quanquanModal').modal('hide');
+        if (args.code == 1000) {
                     window.location.href = args.url;
                 } else {
                     alert(args.msg)
@@ -557,41 +610,23 @@
 </script>
 
 
-{#单选修改checked属性#}
-<script>
-    $("input[name='checkedres']").click(function () {
-        if ($(this).attr("checked")) {
-            $(this).removeAttr("checked")
-        } else {
-            $(this).attr("checked", "true")
-        }
-    })
-
-    $("input[name='checkedshell']").click(function () {
-        if ($(this).attr("checked")) {
-            $(this).removeAttr("checked")
-        } else {
-            $(this).attr("checked", "true")
-        }
-    })
-
-</script>
 
 
 {#开始安装#}
 <script>
     $('#runinstall').click(function () {
+        $('#quanquanModal').modal('show');
         var hostpk_ls = [];
         var shellpk_ls = [];
 
-        $("input[name='checkedres']").each(function (k, v) {
+        $("input[name='hostsub']").each(function (k, v) {
             let pk = $(this).attr("pk")
             if ($(this).attr("checked")) {
                 hostpk_ls.push(pk)
             }
         })
 
-        $("input[name='checkedshell']").each(function (k, v) {
+        $("input[name='toolsub']").each(function (k, v) {
             let pk = $(this).attr("pk")
             if ($(this).attr("checked")) {
                 shellpk_ls.push(pk)
@@ -610,6 +645,7 @@
             processData: false,
 
             success: function (args) {
+                $('#quanquanModal').modal('hide');
                 if (args.code == 1000) {
                     {#window.location.href = args.url;#}
                     $.each(args.backend_ls, function (k, v) {
@@ -626,8 +662,11 @@
 {#上传文件#}
 <script>
     $('#upfile_btn').click(function () {
+        $('#quanquanModal').modal('show');
+        $('#upfile').modal('hide');
+
         var hostpk_ls = [];
-        $("input[name='checkedres']").each(function (k, v) {
+        $("input[name='hostsub']").each(function (k, v) {
             let pk = $(this).attr("pk")
 
             if ($(this).attr("checked")) {
@@ -656,9 +695,14 @@
             processData: false,
 
             success: function (args) {
+           $('#quanquanModal').modal('hide');
+
                 if (args.code == 1000) {
-                    alert(args.msg)
-                    window.location.href = args.url;
+                    $("#upfile_close").click()
+                    {#window.location.href = args.url;#}
+                    $.each(args.backend_ls, function (k, v) {
+                        $("#result").append("<tr><td>" + v + "</tr></td>")
+                    })
                 } else {
                     alert(args.msg)
                 }
@@ -671,7 +715,15 @@
     window.onload=function(){
     let heitht = document.body.clientHeight
     $('div[class="panel panel-info"]').height(heitht)
-    };
-
+            left: '50%' // Left position relative to parent in px
+        };
 </script>
+
+{#等待效果#}
+        <div id="quanquanModal" class="modal fade" data-keyboard="false"
+            data-backdrop="static" data-role="dialog"
+            aria-labelledby="quanquanModalLabel" aria-hidden="true">
+            <div id="loading" class="loading">等待完成...</div>
+        </div>
+
 </html>

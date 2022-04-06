@@ -1,18 +1,20 @@
-import threading
-import time
+import os
+
+base = "D:\视频\\"
+file = "Python29期2020-10月结课"
+path = os.path.join(base,file)
+s = "-"
+def print_file(base,file,s):
+
+    s += "-"
+    path = os.path.join(base,file)
+    if "负载均衡" in file:
+        print(s,path)
+    if os.path.isdir(path):
+        file_ls = os.listdir(path)
+        if file_ls:
+            for f in file_ls:
+                print_file(path,f,s)
 
 
-def run(n):
-    print("task",n)
-    time.sleep(1)
-
-
-if __name__ == '__main__':
-    task_ls=[]
-    for i in range(10):
-        t = threading.Thread(target=run,args=(i,))
-        t.setDaemon(True)
-        task_ls.append(t)
-    for task in task_ls:
-        task.start()
-        task.join()
+print_file(base,file,s)
