@@ -8,6 +8,7 @@ def upfile_to_linux(hostdic, filename,linuxpath):
     port = hostdic.get("port")
     user = hostdic.get("username")
     password = hostdic.get("password")
+    msg = ""
 
     # 本第文件上传到linux
     try:
@@ -37,6 +38,7 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
     user = hostdic.get("username")
     password = hostdic.get("password")
     run_shellpath_ls = []
+    std_out_ls = []
 
     # 本第文件上传到linux
     try:
@@ -44,7 +46,7 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
         t.connect(username=user, password=password)
         sftp = paramiko.SFTPClient.from_transport(t)
     except Exception as e:
-        return
+        return std_out_ls
 
     try:
         for shellname in shellname_ls:
@@ -64,7 +66,11 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
         ssh_client = paramiko.SSHClient()
         ssh_client.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         ssh_client.connect(host,port,user,password)
-        std_out_ls = []
+    except Exception as e:
+        std_out_ls.append(e)
+        print(e)
+
+    try:
         for path in run_shellpath_ls:
             command = "/bin/bash %s"%(path)
             std_in,std_out,std_err = ssh_client.exec_command(command)
@@ -85,12 +91,12 @@ def paramiko_uploadfile_to_linux(hostdic, shellname_ls=[]):
     return std_out_ls
 
 
-if __name__ == '__main__':
-    hostdic_ls = [{"host": "192.168.45.100", "port": 22, "username": "root", "password": "root"}]
-    linuxpath = "\home"
-    filename = "test.txt"
-    for hostdic in hostdic_ls:
-        std_out = upfile_to_linux(hostdic,filename,linuxpath)
+# if __name__ == '__main__':
+    # hostdic_ls = [{"host": "192.168.45.100", "port": 22, "username": "root", "password": "root"}]
+    # linuxpath = "\home"
+    # filename = "test.txt"
+    # for hostdic in hostdic_ls:
+    #     std_out = upfile_to_linux(hostdic,filename,linuxpath)
 
     # shellpath_ls = ["test.sh","test1.sh"]
     # for hostdic in hostdic_ls:

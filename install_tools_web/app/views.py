@@ -236,22 +236,26 @@ def runinstall(request):
 
             queryset = models.Hosts.objects.filter(id__in=hostpk_ls)
             hostdic_ls = []
-            for q in queryset:
-                hostdic_ls.append(model_to_dict(q))
+            if queryset:
+                for q in queryset:
+                    if q:
+                        hostdic_ls.append(model_to_dict(q))
 
             queryset = models.Shells.objects.filter(id__in=shellpk_ls)
             shellname_ls = []
-            for q in queryset:
-                shellpath = model_to_dict(q).get("path")
-                if shellpath:
-                    shellname = os.path.basename(str(shellpath))
-                    shellname_ls.append(shellname)
+            if queryset:
+                for q in queryset:
+                    if q:
+                        shellpath = model_to_dict(q).get("path")
+                        if shellpath:
+                            shellname = os.path.basename(str(shellpath))
+                            shellname_ls.append(shellname)
 
         for hostdic in hostdic_ls:
             resultmsg = hostdic["host"]+"\n"
             std_out_ls = paramiko_uploadfile_to_linux(hostdic, shellname_ls)
-            if not std_out_ls:
-                resultmsg +=                 "连接主机失败，请重新添加更换密码或更换其他主机\n"
+            if std_out_ls == []:
+                resultmsg +="连接主机失败，请重新添加更换密码或更换其他主机\n"
             else:
                 for std_out in std_out_ls:
                     resultmsg +=std_out+ "\n"

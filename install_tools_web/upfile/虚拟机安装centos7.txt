@@ -1,0 +1,11 @@
+安装好虚拟机后下载好centos镜像文件》设置从CD启动》启动
+安装好后需要先设置网络
+设置NATEWORK>configure>ipv4settings>nethod>选择Manual>add
+从编辑>虚拟网络编辑器>net模式 查看子网ip 192.168.45.0  和子网掩码255.255.255.0 点击NET设置查看网关 192.168.45.2
+依次设置address 192.168.45.100   netmask 255.255.255.0   getway192.168.45.2
+设置dnsserver 223.5.5.5  或 223.6.6.6
+save退出
+继续configure>general>勾选第一个自动链接网络>save退出
+设置好网络后设置时间，选择中国
+设置分区
+开始安装
